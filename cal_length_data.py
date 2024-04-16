@@ -1,11 +1,25 @@
 import numpy as np
+import argparse
 
 # 读取文件
-data = np.loadtxt('reads.sequence_length_num.txt', dtype=int)
+#data = np.loadtxt('chip1_PAM11408_PAM09650_length_num.txt', dtype=int)
 
-# 设置bin的宽度和总bin数
+parser = argparse.ArgumentParser(description='Process file for binning data.')
+parser.add_argument('filename1', type=str, help='Name of the file to process')
+parser.add_argument('filename2', type=str, help='Name of the file to process')
+args = parser.parse_args()
+
+# 读取文件
+data = np.loadtxt(args.filename1, dtype=int)
+#out_f2 = np.loadtxt(args.filename2, dtype=int)
+
 bin_width = 8000
-total_bins = 372
+# 计算total_bins
+max_value_second_column = np.max(data[:, 1])  # 获取第二列的最大值
+total_bins = int(np.ceil(max_value_second_column / bin_width))  # 计算总的bin数
+
+# 打印结果
+print("Total bins:", total_bins)
 
 # 计算每个bin的范围
 bin_ranges = []
@@ -35,6 +49,6 @@ for i in range(total_bins):
 # 打印横轴的中心点（除以1000）
 print("Bin Centers:", [center // 1000 for center in bin_centers])
 
-with open('reads.sequence_length_num_out.txt', 'w') as f:
+with open(args.filename2, 'w') as f:
     for center, bases in zip(bin_centers, bin_bases):
         f.write(f"{center // 1000}\t{bases}\n")
